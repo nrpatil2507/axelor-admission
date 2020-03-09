@@ -9,7 +9,7 @@
     <field name="registrationDate" />
     <field name="faculty" />
     <field name="merit" />
-    <field name="status" />
+    <field name="statusSelect" />
     <field name="validationDate" />
     <field name="collegesSelected" />
   </grid>
@@ -22,53 +22,51 @@
   </selection>
 
   <form name="admission-entry-form" title="Admission Entry Form"
-    model="com.axelor.admission.db.AdmissionEntry" onNew="action-admission-entry-attrs-set-registration-date"
-    onLoad="action-admission-entry-attrs-validate-collegelist">
-    <panel name="panelStatus">
-      <field name="status" widget="nav-select"
-        selection="admission.entry.status.select" showTitle="false"/>
+    model="com.axelor.admission.db.AdmissionEntry" onNew="action-admission-entry-attrs-set-registration-date">
+    <panel name="statusPanel">
+      <field name="statusSelect" showTitle="false" readonly="true" colSpan="12" widget="nav-select"/>
     </panel>
     <panel title="Admission Detail" name="panelAdmissionDetail">
       <field name="candidate" />
       <field name="registrationDate" />
-      <field name="faculty" />
+      <field name="faculty"/>
       <field name="merit" />
     </panel>
     <panel-related field="collegesList" title="College Entry"
-      name="panelCollegeEntry" />
+      name="panelCollegeEntry" readonlyIf="statusSelect != 1">
+      <field name="college" />
+      <field name="sequence" />
+      </panel-related>
     <panel sidebar="true" name="panelButtons">
         <button name="draft" title="Draft"
           onClick="save,action-admission-entry-attrs-set-status-value-draft,save"
-          colSpan="12" showIf="status == 4 || status== 2" hidden="true" />
+          colSpan="12" showIf="statusSelect == 4 || statusSelect == 2" hidden="true" />
         <button name="confirm" title="Confirm"
           onClick="save,action-admission-entry-attrs-set-status-value-confirmed,save"
-          colSpan="12" showIf="status == 1 || status == 3" hidden="true"/>
+          colSpan="12" showIf="statusSelect == 1 || statusSelect == 3" hidden="true"/>
           <button name="cancel" title="Cancel"
           onClick="save,action-admission-entry-attrs-set-status-value-cancelled,save"
-          colSpan="12" hideIf="status == 4"/>
+          colSpan="12" hideIf="statusSelect == 4"/>
 
     </panel>
-    <panel sidebar="true" name="paneldates" showIf="status==3">
+    <panel sidebar="true" name="paneldates" showIf="statusSelect==3">
       <field name="validationDate" />
       <field name="collegesSelected" />
     </panel>
   </form>
 
   <action-attrs name="action-admission-entry-attrs-set-status-value-draft">
-    <attribute name="value" for="status" expr="1"/>
+    <attribute name="value" for="statusSelect" expr="1"/>
   </action-attrs>
   <action-attrs name="action-admission-entry-attrs-set-status-value-cancelled">
-    <attribute name="value" for="status" expr="4" />
+    <attribute name="value" for="statusSelect" expr="4" />
   </action-attrs>
   <action-attrs name="action-admission-entry-attrs-set-status-value-confirmed">
-    <attribute name="value" for="status" expr="2" />
+    <attribute name="value" for="statusSelect" expr="2" />
   </action-attrs>
 
   <action-attrs name="action-admission-entry-attrs-set-registration-date">
   <attribute name="value" for="registrationDate" expr="eval:__date__"/>
   </action-attrs>
-
-  <action-attrs name="action-admission-entry-attrs-validate-collegelist">
-    <attribute for="collegeList" name="readonly" expr="status != 1" />
-  </action-attrs>
+  
 </object-views>

@@ -8,14 +8,12 @@
     model="com.axelor.admission.db.CollegeEntry">
     <panel title="College Entry Detail">
       <field name="college" />
-      <field name="admissionEntry" hidden="true"/>
       <field name="sequence" />
     </panel>
   </form>
   <grid name="college-entry-grid" title="College entries"
     model="com.axelor.admission.db.CollegeEntry">
     <field name="college" />
-    <field name="admissionEntry"/>
     <field name="sequence" />
   </grid>
 </object-views>

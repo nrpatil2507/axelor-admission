@@ -7,13 +7,12 @@
     <panel title="Faculty Entry Detail">
       <field name="faculty" />
       <field name="seats" />
-      <field name="college" hidden="true" />
+      <field name="college" hidden="true"/>
     </panel>
   </form>
   <grid name="faculty-entry-grid" title="Faculty entries"
     model="com.axelor.admission.db.FacultyEntry">
     <field name="faculty" />
     <field name="seats" />
-    <field name="college" />
   </grid>
 </object-views>

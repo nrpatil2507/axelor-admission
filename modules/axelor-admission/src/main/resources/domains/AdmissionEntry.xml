@@ -8,15 +8,33 @@
   <entity name="AdmissionEntry" sequential="true" cachable="true">
     <many-to-one name="candidate" title="Candidate"
       ref="com.axelor.contact.db.Contact" required="true" unique="true" />
+
     <date name="registrationDate" title="Registration Date"></date>
+
     <many-to-one name="faculty" title="Faculty"
       ref="com.axelor.admission.db.Faculty" required="true" />
+
     <decimal name="merit" title="Merit %" min="0" max="100" />
+
     <one-to-many name="collegesList" title="Colleges"
-      ref="com.axelor.admission.db.CollegeEntry"/>
-    <integer name="status" title="Status" selection="admission.entry.status.select" default="1"/>
+      ref="com.axelor.admission.db.CollegeEntry" mappedBy="admissionEntry"/>
+
+      <integer name="statusSelect" title="Status" selection="admission.entry.status.select" default="1" readonly="true"/>
+
     <date name="validationDate" title="Validation Date" readonly="true"/>
+
     <many-to-one name="collegesSelected" title="Colleges Selected"
       ref="com.axelor.admission.db.College" readonly="true" />
+
+      <extra-code>
+      <![CDATA[
+        // STATUS
+      public static final int STATUS_DRAFT = 1;
+      public static final int STATUS_CONFIRM= 2;
+      public static final int STATUS_ADMITTED = 3;
+      public static final int STATUS_CANCELED = 4;
+    ]]>
+  </extra-code>
+
   </entity>
 </domain-models>

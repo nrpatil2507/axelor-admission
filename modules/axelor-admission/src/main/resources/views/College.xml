@@ -13,8 +13,6 @@
 
 <grid name="college-grid" title="Colleges" model="com.axelor.admission.db.College">
   <field name="name"/>
-  <field name="attrs"/>
-  <field name="archived"/>
 </grid>
 
   </object-views>

@@ -12,8 +12,8 @@ public class AdmissionProcessController {
   public void completeAdmission(ActionRequest request, ActionResponse response) {
     AdmissionProcess admissionProcess = request.getContext().asType(AdmissionProcess.class);
     try {
-    	admissionProcessService.completeAdmission(admissionProcess);
-    	 response.setFlash("Admission Process Completed");
+      admissionProcessService.completeAdmission(admissionProcess);
+      response.setFlash("Admission Process Completed");
     } catch (Exception e) {
       System.out.println("error");
     }

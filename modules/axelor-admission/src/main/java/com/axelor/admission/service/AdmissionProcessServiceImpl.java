@@ -1,9 +1,5 @@
 package com.axelor.admission.service;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import com.axelor.admission.db.AdmissionEntry;
 import com.axelor.admission.db.AdmissionProcess;
 import com.axelor.admission.db.CollegeEntry;
@@ -14,87 +10,71 @@ import com.axelor.admission.db.repo.FacultyEntryRepository;
 import com.axelor.admission.db.repo.FacultyRepository;
 import com.axelor.inject.Beans;
 import com.google.inject.persist.Transactional;
-import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class AdmissionProcessServiceImpl implements AdmissionProcessService {
 	@Transactional
 	@Override
 	public void completeAdmission(AdmissionProcess admissionProcess) {
+		
 		LocalDate fromDate = admissionProcess.getFromDate();
 		LocalDate toDate = admissionProcess.getToDate();
-		 BigDecimal merit,merrit1;
-		 LocalDate regDate,regDate1;
 
 		List<Faculty> facultyList = Beans.get(FacultyRepository.class).all().fetch();
 
-		if (!facultyList.isEmpty() && facultyList != null) {
+		if (facultyList != null && !facultyList.isEmpty()) {
 			for (Faculty faculty : facultyList) {
 				List<AdmissionEntry> admissionEntryList = Beans.get(AdmissionEntryRepository.class).all().filter(
-						"self.status=2 AND self.faculty=? AND self.registrationDate>=? AND self.registrationDate <= ?",
+						"self.statusSelect=2 AND self.faculty=? AND self.registrationDate>=? AND self.registrationDate <= ?",
 						faculty.getId(), fromDate, toDate).fetch();
+
 				
-				  AdmissionEntry admissionEntryArray[] = new AdmissionEntry[admissionEntryList.size()]; 
-			        for (int j = 0; j < admissionEntryList.size(); j++) { 
-			            admissionEntryArray[j] = admissionEntryList.get(j); 
-			        } 
-			   
-				for (int i = 0; i < admissionEntryArray.length; i++) {
-					for (int j = i+1; j < admissionEntryArray.length; j++) {
-						if(admissionEntryArray[i].getMerit().intValue()<admissionEntryArray[j].getMerit().intValue())
-						{
-							merit=admissionEntryArray[i].getMerit();
-							merrit1=admissionEntryArray[j].getMerit();
-							admissionEntryArray[i].getMerit().add(merrit1.subtract(merit));
-							admissionEntryArray[j].getMerit().add(merit.subtract(merrit1));
+			//	List<AdmissionEntry> admissionEntries=admissionEntryList.stream().sorted(Comparator.comparing(AdmissionEntry::getMerit).reversed()).collect(Collectors.toList());
+				Comparator<AdmissionEntry> comparator = new Comparator<AdmissionEntry>() {
+					@Override
+					public int compare(AdmissionEntry Ad1, AdmissionEntry Ad2) {
+						int result = Ad1.getMerit().compareTo(Ad2.getMerit());
+						if (result == 0) {
+							return Ad1.getRegistrationDate().compareTo(Ad2.getRegistrationDate());
 						}
-						else if(admissionEntryArray[i].getMerit().intValue()==admissionEntryArray[j].getMerit().intValue())
-						{
-							if(!admissionEntryArray[j].getRegistrationDate().isAfter(admissionEntryArray[i].getRegistrationDate()))
-							{
-								AdmissionEntry admission = admissionEntryArray[i];
-								admissionEntryArray[i]=admissionEntryArray[j];
-								admissionEntryArray[j]=admission;
-							}
-						}
-						
+						return result == 0 ? 0 : result > 0 ? -1 : 1;
 					}
-				}
-				List<AdmissionEntry> admissionEntrySortedList = new ArrayList<AdmissionEntry>();
-				admissionEntrySortedList = Arrays.asList(admissionEntryArray);
+				};
+				Collections.sort(admissionEntryList, comparator);
+				Comparator<AdmissionEntry> compareByLastName = (AdmissionEntry o1, AdmissionEntry o2) -> 
+                o1.getMerit().compareTo(o2.getMerit()) ;
 				
-//				Comparator<AdmissionEntry> comparator = new Comparator<AdmissionEntry>() {
-//					@Override
-//					public int compare(AdmissionEntry Ad1, AdmissionEntry Ad2) {
-//						int result = Ad1.getMerit().compareTo(Ad2.getMerit());
-//						if (result == 0) {
-//							return 0;
-//						} else if (result > 0) {
-//							return -1;
-//						} else {
-//							return 1;
-//						}
-//					}
-//				};
-//			
+				for (AdmissionEntry admissionEntry : admissionEntryList) {
+
+					List<CollegeEntry> collegeEntries = admissionEntry.getCollegesList();
+					collegeEntries.sort(Comparator.comparing(CollegeEntry::getSequence).reversed());
 				
-				for (AdmissionEntry admissionEntry : admissionEntrySortedList) {
-					for (CollegeEntry collegeEntry : admissionEntry.getCollegesList()) {
+					for (CollegeEntry collegeEntry : collegeEntries) {
 						FacultyEntry facultyEntry = Beans.get(FacultyEntryRepository.class).all()
 								.filter("self.faculty=? AND self.college=?", faculty.getId(), collegeEntry.getCollege())
 								.fetchOne();
+						if (facultyEntry != null) {
+							int avilableSeat = facultyEntry.getSeats();
 
-						int avilableSeat = facultyEntry.getSeats();
-
-						if (avilableSeat > 0) {
-							admissionEntry.setCollegesSelected(collegeEntry.getCollege());
-							admissionEntry.setValidationDate(LocalDate.now());
-							admissionEntry.setStatus(3);
-							avilableSeat--;
-							facultyEntry.setSeats(avilableSeat);
+							if (avilableSeat > 0) {
+								admissionEntry.setCollegesSelected(collegeEntry.getCollege());
+								admissionEntry.setValidationDate(LocalDate.now());
+								admissionEntry.setStatusSelect(AdmissionEntryRepository.STATUS_ADMITTED);
+								avilableSeat--;
+								facultyEntry.setSeats(avilableSeat);
+							}
+						} else {
+							admissionEntry.setStatusSelect(AdmissionEntryRepository.STATUS_CANCELED);
+							admissionEntry.setValidationDate(null);
+							admissionEntry.setCollegesSelected(null);
 						}
 					}
-					if (admissionEntry.getStatus() == 2) {
-						admissionEntry.setStatus(4);
+					if (admissionEntry.getStatusSelect() == AdmissionEntryRepository.STATUS_CONFIRM) {
+						admissionEntry.setStatusSelect(AdmissionEntryRepository.STATUS_CANCELED);
 						admissionEntry.setValidationDate(null);
 						admissionEntry.setCollegesSelected(null);
 					}

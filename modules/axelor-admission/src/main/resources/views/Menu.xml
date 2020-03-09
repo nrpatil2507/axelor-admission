@@ -3,7 +3,7 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_5.0.xsd">
 
-  <menuitem name="menu-admission-process" order="-90"
+  <menuitem name="menu-admission-process" order="-102"
     title="Admission Process" icon="fa-book" icon-background="olive" />
 
   <menuitem name="menu-root-faculty" parent="menu-admission-process"
@@ -18,15 +18,6 @@
     <view type="form" name="faculty-form" />
   </action-view>
 
-  <menuitem name="menu-faculty-entry" parent="menu-root-faculty"
-    title="Faculty Entry" action="faculty.entry.all" />
-
-  <action-view name="faculty.entry.all" title="Faculty entries"
-    model="com.axelor.admission.db.FacultyEntry">
-    <view type="grid" name="faculty-entry-grid" />
-    <view type="form" name="faculty-entry-form" />
-  </action-view>
-
   <menuitem name="menu-root-College" parent="menu-admission-process"
     title="College" />
 
@@ -37,15 +28,6 @@
     model="com.axelor.admission.db.College">
     <view type="grid" name="college-grid" />
     <view type="form" name="college-form" />
-  </action-view>
-
-  <menuitem name="menu-college-entry" parent="menu-root-College"
-    title="All College Entry" action="college.entry.all" />
-
-  <action-view name="college.entry.all" title="College entries"
-    model="com.axelor.admission.db.CollegeEntry">
-    <view type="grid" name="college-entry-grid" />
-    <view type="form" name="college-entry-form" />
   </action-view>
 
   <menuitem name="menu-root-admission-process" parent="menu-admission-process"

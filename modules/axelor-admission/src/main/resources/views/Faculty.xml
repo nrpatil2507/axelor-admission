@@ -5,15 +5,11 @@
   <form name="faculty-form" title="Faculty" model="com.axelor.admission.db.Faculty">
     <panel title="Overview">
       <field name="name" />
-      <field name="attrs" />
-      <field name="archived" />
     </panel>
   </form>
 
   <grid name="faculty-grid" title="Faculties" model="com.axelor.admission.db.Faculty">
     <field name="name" />
-    <field name="attrs" />
-    <field name="archived" />
   </grid>
 
 </object-views>
