@@ -14,7 +14,6 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class AdmissionProcessServiceImpl implements AdmissionProcessService {
 	@Transactional
@@ -31,7 +30,6 @@ public class AdmissionProcessServiceImpl implements AdmissionProcessService {
 				List<AdmissionEntry> admissionEntryList = Beans.get(AdmissionEntryRepository.class).all().filter(
 						"self.statusSelect=2 AND self.faculty=? AND self.registrationDate>=? AND self.registrationDate <= ?",
 						faculty.getId(), fromDate, toDate).fetch();
-
 				
 			//	List<AdmissionEntry> admissionEntries=admissionEntryList.stream().sorted(Comparator.comparing(AdmissionEntry::getMerit).reversed()).collect(Collectors.toList());
 				Comparator<AdmissionEntry> comparator = new Comparator<AdmissionEntry>() {
@@ -41,12 +39,10 @@ public class AdmissionProcessServiceImpl implements AdmissionProcessService {
 						if (result == 0) {
 							return Ad1.getRegistrationDate().compareTo(Ad2.getRegistrationDate());
 						}
-						return result == 0 ? 0 : result > 0 ? -1 : 1;
+						return result > 0 ? -1 : 1;
 					}
 				};
 				Collections.sort(admissionEntryList, comparator);
-				Comparator<AdmissionEntry> compareByLastName = (AdmissionEntry o1, AdmissionEntry o2) -> 
-                o1.getMerit().compareTo(o2.getMerit()) ;
 				
 				for (AdmissionEntry admissionEntry : admissionEntryList) {
 
